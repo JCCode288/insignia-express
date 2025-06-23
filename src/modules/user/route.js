@@ -3,6 +3,8 @@ const { User } = require("./model");
 const UserHandler = require("./handler");
 const UserController = require("./controller");
 const authMiddleware = require("../auth/middleware");
+const schemaValidator = require("../utils/interceptors/schema.validator");
+const { addUserSchema, updateUserSchema } = require("./schema");
 
 const handler = new UserHandler(User);
 const controller = new UserController(handler);
@@ -11,13 +13,13 @@ const controller = new UserController(handler);
 userRouter.get("/", authMiddleware, (req, res, next) =>
   controller.handleAll(req, res, next)
 );
-userRouter.post("/", (req, res, next) =>
+userRouter.post("/", schemaValidator(addUserSchema), (req, res, next) =>
   controller.handleCreate(req, res, next)
 );
 userRouter.get("/:id", authMiddleware, (req, res, next) =>
   controller.handleDetail(req, res, next)
 );
-userRouter.put("/:id", (req, res, next) =>
+userRouter.put("/:id", schemaValidator(updateUserSchema), (req, res, next) =>
   controller.handleUpdate(req, res, next)
 );
 userRouter.delete("/:id", (req, res, next) =>

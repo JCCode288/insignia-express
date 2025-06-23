@@ -7,6 +7,7 @@ const {
   BadRequestError,
 } = require("./exception.impl");
 const { MongoServerError } = require("mongodb");
+const Joi = require("joi");
 
 module.exports = class ExceptionHandler {
   static handle(err, req, res, next) {
@@ -37,6 +38,16 @@ module.exports = class ExceptionHandler {
 
         err = new BadRequestError("duplicate error");
         response.setError(err);
+
+        return response.exec();
+
+      case err instanceof Joi.ValidationError:
+        response
+          .setStatus(400)
+          .setMessage(err.message)
+          .setPayload(
+            err.details.map(({ context }) => (context ? context.key : ""))
+          );
 
         return response.exec();
 
