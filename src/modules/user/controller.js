@@ -84,7 +84,7 @@ class UserController {
       if (!id || typeof id !== "string")
         throw new BadRequestError("no id provided");
 
-      const body = req.body;
+      let body = req.body;
       if (!body) throw new BadRequestError("invalid body");
 
       const updated = await this.service.update(id, body);

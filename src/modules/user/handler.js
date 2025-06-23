@@ -1,5 +1,6 @@
 const { Model } = require("mongoose");
 const mongoose = require("../database");
+const bcrypt = require("bcryptjs");
 const CRUDStrategy = require("../base.service");
 const { BadRequestError } = require("../utils/exceptions/exception.impl");
 
@@ -11,6 +12,8 @@ module.exports = class UserHandler extends CRUDStrategy {
   constructor(model) {
     super();
     this.model = model;
+    this.bcrypt = bcrypt;
+    this.rounds = +(process.env.BCRYPT_ROUNDS ?? "15");
   }
 
   async getAll(query = {}) {
@@ -32,6 +35,8 @@ module.exports = class UserHandler extends CRUDStrategy {
   }
 
   async create(data) {
+    data.password = await this.hashPassword(data.password);
+
     const user = new this.model(data);
     await user.validate();
     await user.save();
@@ -41,12 +46,15 @@ module.exports = class UserHandler extends CRUDStrategy {
     return { _id, name, email, createdAt, updatedAt };
   }
 
+  // assumed that update routes also handles change password
   async update(id, data) {
     const session = await mongoose.startSession();
 
     session.startTransaction();
     const current = await this.getOne(id);
     if (!current) throw new BadRequestError("invalid id");
+
+    data.password = await this.hashPassword(data.password);
 
     current.set(data);
     const { name, email, _id, createdAt, updatedAt } = await current.save();
@@ -75,5 +83,11 @@ module.exports = class UserHandler extends CRUDStrategy {
     await session.endSession();
 
     return res;
+  }
+
+  async hashPassword(password) {
+    const salt = await this.bcrypt.genSalt(this.rounds);
+
+    return this.bcrypt.hash(password, salt);
   }
 };

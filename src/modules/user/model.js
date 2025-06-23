@@ -4,10 +4,11 @@ const UserSchema = new mongoose.Schema(
   {
     name: String,
     email: { type: String, index: true, unique: true },
-    password: String,
+    password: { type: String },
   },
   { timestamps: true }
 );
+
 const User = mongoose.model("User", UserSchema);
 
 module.exports = {
