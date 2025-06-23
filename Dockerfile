@@ -10,9 +10,7 @@ ARG NODE_VERSION=22.14.0
 
 FROM node:${NODE_VERSION}-alpine
 
-# Use production node environment by default.
-ENV NODE_ENV production
-
+RUN corepack enable
 
 WORKDIR /usr/src/app
 
@@ -20,9 +18,12 @@ WORKDIR /usr/src/app
 # Leverage a cache mount to /root/.yarn to speed up subsequent builds.
 # Leverage a bind mounts to package.json and yarn.lock to avoid having to copy them into
 # into this layer.
-RUN --mount=type=bind,source=package.json,target=package.json \
-    --mount=type=bind,source=yarn.lock,target=yarn.lock \
-    --mount=type=cache,target=/root/.yarn \
+COPY package.json .
+COPY yarn.lock .
+
+RUN corepack install
+
+RUN --mount=type=cache,target=/root/.yarn \
     yarn install --production --frozen-lockfile
 
 # Run the application as a non-root user.
@@ -35,4 +36,4 @@ COPY . .
 EXPOSE 3000
 
 # Run the application.
-CMD node server.js
+CMD ["node", "server.js"]
