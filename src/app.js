@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const userRouter = require("./modules/user/route");
 const ExceptionHandler = require("./modules/utils/exceptions/handler");
+const authRouter = require("./modules/auth/route");
 
 const app = express();
 let originWhitelist = [];
@@ -18,6 +19,7 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+app.use(authRouter);
 app.use("/users", userRouter);
 
 app.use(ExceptionHandler.handle);
