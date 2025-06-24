@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: insignia-express
+  labels:
+    app: insignia-express
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: insignia-express
+  template:
+    metadata:
+      labels:
+        app: insignia-express
+    spec:
+      containers:
+        - name: insignia-express
+          image: LOCATION-docker.pkg.dev/PROJECT_ID/REPOSITORY/IMAGE:TAG
+          ports:
+            - containerPort: 3000
+          env:
+            - name: NODE_ENV
+              value: "production"
