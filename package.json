@@ -1,6 +1,7 @@
 {
   "name": "insignia-express",
   "main": "server.js",
+  "version": "0.0.1",
   "dependencies": {
     "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
